@@ -50,8 +50,55 @@ object List {
 
   }
 
-  val lst1 = List(1, 2, 3, 4, 5)
-  println(dropWhile(lst1, (x: Int) => x < 4))
+  def dropWhileGroupArg[A](al: List[A])(f: A => Boolean): List[A] = al match {
+    case Nil => sys.error("Empty List")
+    case Cons(x, xs) => {
+      if (f(x)) dropWhile(xs, f)
+      else al
+    }
+  }
+
+  def foldRight[A, B](as: List[A], z: B)(f: (A, B) => B): B = as match {
+    case Nil => z
+    case Cons(x, xs) => f(x, foldRight(xs, z)(f))//foldRight(xs, f(x, z))(f)
+  }
+
+  def sum2(ns: List[Int]) = {
+    foldRight(ns, 0)((x, y) => x + y)
+  }
+
+  def product2(ns: List[Double]) = ns match {
+    case Cons(0.0, _) => foldRight(ns, 0.0)(_ * _)
+    case _ => foldRight(ns, 1.0)(_ * _)
+  }
+
+  def length[A](as: List[A]): Int = {
+    foldRight(as, 0)((x, y) => y + 1)
+  }
+
+  @annotation.tailrec
+  def foldLeft[A, B](as: List[A], z: B)(f: (B, A)  => B): B = as match {
+    case Nil => z
+    case Cons(x, xs) => foldLeft(xs, f(z, x))(f)
+  }
+
+  def sum3(ns: List[Int]) = foldLeft(ns, 0)((x, y) => x + y)
+
+  def product3(ns: List[Double]) = ns match {
+    case Cons(0.0, _) => foldLeft(ns, 0.0)(_ * _)
+    case _ => foldRight(ns, 1.0)(_ * _)
+  }
+
+  def reverse[A](ns: List[A]): List[A] = {
+    foldLeft(ns, Nil: List[A])((x, xs) => Cons(xs, x))
+  }
+
+  val lst1: List[Int] = List(1, 2, 3, 4, 5)
+  //println(dropWhile(lst1, (x: Int) => x < 4))
+  dropWhileGroupArg(lst1)(x => x < 4)
+  println(foldRight(List(3,2,1), Nil: List[Int])(Cons(_,_)))
+  println(length(lst1))
+  println(reverse(lst1))
 }
 
 object learnScala {
